@@ -12,6 +12,7 @@ class App extends React.Component {
 			searchResults: [],
 			playlistName: 'My Playlist',
 			playlistTracks: [],
+			isLoading: false,
 		};
 		this.search = this.search.bind(this);
 		this.addTrack = this.addTrack.bind(this);
@@ -60,10 +61,16 @@ class App extends React.Component {
 	}
 
 	savePlaylist() {
+		this.setState({ isLoading: true });
+
 		const trackURIs = this.state.playlistTracks.map(track => track.uri);
 
 		Spotify.savePlaylist(this.state.playlistName, trackURIs).then(() => {
-			this.setState({ playlistName: 'New Playlist', playlistTracks: [] });
+			this.setState({
+				playlistName: 'New Playlist',
+				playlistTracks: [],
+				isLoading: false,
+			});
 		});
 	}
 
@@ -80,13 +87,18 @@ class App extends React.Component {
 							searchResults={this.state.searchResults}
 							onAdd={this.addTrack}
 						/>
-						<Playlist
-							playlistName={this.state.playlistName}
-							playlistTracks={this.state.playlistTracks}
-							onRemove={this.removeTrack}
-							onNameChange={this.updatePlaylistName}
-							onSave={this.savePlaylist}
-						/>
+						{this.state.isLoading ? (
+							<Playlist isLoading={true} />
+						) : (
+							<Playlist
+								playlistName={this.state.playlistName}
+								playlistTracks={this.state.playlistTracks}
+								onRemove={this.removeTrack}
+								onNameChange={this.updatePlaylistName}
+								onSave={this.savePlaylist}
+								isLoading={this.state.isLoading}
+							/>
+						)}
 					</div>
 				</div>
 			</div>
